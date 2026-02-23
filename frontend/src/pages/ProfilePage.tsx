@@ -1,30 +1,33 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { useBackend } from '@/hooks/useActor';
-import { useInternetIdentity } from '@/hooks/useInternetIdentity';
-import { useEffect } from 'react';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useBackend } from "@/hooks/useActor";
+import { useInternetIdentity } from "@/hooks/useInternetIdentity";
+import { useEffect, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
-  username: z.string().min(2, 'Username must be at least 2 characters.'),
-  boatName: z.string().min(2, 'Boat name must be at least 2 characters.'),
-  boatCategory: z.string().min(2, 'Boat category must be at least 2 characters.'),
-  boatRating: z.coerce.number().min(1, 'Boat rating must be at least 1.'),
+  username: z.string().min(2, "L'username deve contenere almeno 2 caratteri."),
+  boatName: z.string().min(2, "Il nome della barca deve contenere almeno 2 caratteri."),
+  boatCategory: z.string().min(2, "La categoria della barca deve contenere almeno 2 caratteri."),
+  boatRating: z.coerce.number().min(1, "La valutazione della barca deve essere di almeno 1."),
 });
 
 export default function ProfilePage() {
-  const { whoami, user, principal } = useInternetIdentity();
+  const { user } = useInternetIdentity();
   const { backend } = useBackend();
+  const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: '',
-      boatName: '',
-      boatCategory: '',
+      username: "",
+      boatName: "",
+      boatCategory: "",
       boatRating: 1,
     },
   });
@@ -44,25 +47,40 @@ export default function ProfilePage() {
     }
   }, [backend, user, form]);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    if (backend) {
-      backend
-        .saveCallerUserProfile({
-          username: values.username,
-          email: user?.email ?? '',
-          boatName: values.boatName,
-          boatCategory: values.boatCategory,
-          boatRating: BigInt(values.boatRating),
-        })
-        .then(() => {
-          window.location.href = '/';
-        });
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!backend) return;
+
+    setIsSaving(true);
+    try {
+      await backend.saveCallerUserProfile({
+        username: values.username,
+        email: user?.email ?? "",
+        boatName: values.boatName,
+        boatCategory: values.boatCategory,
+        boatRating: BigInt(values.boatRating),
+      });
+
+      toast({
+        title: "Profilo Salvato!",
+        description: "Il tuo profilo è stato aggiornato con successo.",
+      });
+
+      window.location.href = "/";
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Si è verificato un errore",
+        description: String(error),
+      });
+    } finally {
+      setIsSaving(false);
     }
   }
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Complete Your Profile</h1>
+      <h1 className="text-2xl font-bold mb-4">Completa il tuo profilo</h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
@@ -72,7 +90,7 @@ export default function ProfilePage() {
               <FormItem>
                 <FormLabel>Username</FormLabel>
                 <FormControl>
-                  <Input placeholder="Your username" {...field} />
+                  <Input placeholder="Il tuo username" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -83,9 +101,9 @@ export default function ProfilePage() {
             name="boatName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Boat Name</FormLabel>
+                <FormLabel>Nome della barca</FormLabel>
                 <FormControl>
-                  <Input placeholder="Your boat's name" {...field} />
+                  <Input placeholder="Il nome della tua barca" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -96,9 +114,9 @@ export default function ProfilePage() {
             name="boatCategory"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Boat Category</FormLabel>
+                <FormLabel>Categoria della barca</FormLabel>
                 <FormControl>
-                  <Input placeholder="Your boat's category" {...field} />
+                  <Input placeholder="La categoria della tua barca" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -109,15 +127,17 @@ export default function ProfilePage() {
             name="boatRating"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Boat Rating</FormLabel>
+                <FormLabel>Valutazione della barca</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="Your boat's rating" {...field} />
+                  <Input type="number" placeholder="La valutazione della tua barca" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit">Save</Button>
+          <Button type="submit" disabled={isSaving}>
+            {isSaving ? "Salvataggio..." : "Salva"}
+          </Button>
         </form>
       </Form>
     </div>

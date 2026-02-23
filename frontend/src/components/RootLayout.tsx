@@ -1,30 +1,33 @@
-import { Outlet, useRouter } from '@tanstack/react-router';
-import { Navigation } from './Navigation';
-import { useInternetIdentity } from '@/hooks/useInternetIdentity';
-import { useBackend } from '@/hooks/useActor';
-import { useEffect } from 'react';
+import { Outlet, createRootRoute } from "@tanstack/react-router";
+import { useInternetIdentity } from "@/hooks/useInternetIdentity";
+import { useEffect } from "react";
+import { Toaster } from "./ui/toaster";
+import "leaflet/dist/leaflet.css"; // Import Leaflet CSS
 
-export default function RootLayout() {
-  const { isAuthenticated } = useInternetIdentity();
-  const { backend } = useBackend();
-  const router = useRouter();
+export const Route = createRootRoute({
+  component: RootLayout,
+});
+
+function RootLayout() {
+  const { user, backend } = useInternetIdentity();
 
   useEffect(() => {
-    if (isAuthenticated && backend) {
-      backend.isCallerProfileComplete().then((isComplete) => {
-        if (isComplete.Ok === false) {
-          router.navigate({ to: '/profile' });
+    if (user && backend) {
+      backend.getCallerUserProfile().then((profile) => {
+        if (!profile.Ok) {
+          window.location.href = "/profile";
         }
       });
     }
-  }, [isAuthenticated, backend, router]);
+  }, [user, backend]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <main className="pb-16">
+    <>
+      <main>
         <Outlet />
       </main>
-    </div>
+      <Toaster />
+    </>
+
   );
 }
