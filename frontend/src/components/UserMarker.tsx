@@ -1,1 +1,19 @@
-import { Marker, Tooltip } from \"react-leaflet\";\nimport L from \"leaflet\";\n\ninterface UserMarkerProps {\n  position: L.LatLng;\n  speed: number;\n}\n\nconst UserMarker = ({ position, speed }: UserMarkerProps) => {\n  return (\n    <Marker position={position}>\n      <Tooltip direction=\"top\" offset={[0, -10]} permanent>\n        Speed: {speed.toFixed(2)} knots\n      </Tooltip>\n    </Marker>\n  );\n};\n\nexport default UserMarker;\n
+import { Marker, Tooltip } from "react-leaflet";
+import L from "leaflet";
+
+interface UserMarkerProps {
+  position: L.LatLng;
+  speed: number;
+}
+
+const UserMarker = ({ position, speed }: UserMarkerProps) => {
+  return (
+    <Marker position={position}>
+      <Tooltip direction="top" offset={[0, -10]} permanent>
+        Speed: {speed.toFixed(2)} knots
+      </Tooltip>
+    </Marker>
+  );
+};
+
+export default UserMarker;

@@ -1,1 +1,33 @@
-import { Outlet, createRootRoute } from \"@tanstack/react-router\";\nimport { useInternetIdentity } from \"@/hooks/useInternetIdentity\";\nimport { useEffect } from \"react\";\nimport { Toaster } from \"./ui/toaster\";\nimport \"leaflet/dist/leaflet.css\"; // Import Leaflet CSS\n\nexport const Route = createRootRoute({\n  component: RootLayout,\n});\n\nfunction RootLayout() {\n  const { user, backend } = useInternetIdentity();\n\n  useEffect(() => {\n    if (user && backend) {\n      backend.getCallerUserProfile().then((profile) => {\n        if (!profile.Ok) {\n          window.location.href = \"/profile\";\n        }\n      });\n    }\n  }, [user, backend]);\n\n  return (\n    <>\n      <main>\n        <Outlet />\n      </main>\n      <Toaster />\n    </>\n\n  );\n}\n
+import { Outlet, createRootRoute } from "@tanstack/react-router";
+import { useInternetIdentity } from "@/hooks/useInternetIdentity";
+import { useEffect } from "react";
+import { Toaster } from "./ui/toaster";
+import "leaflet/dist/leaflet.css"; // Import Leaflet CSS
+
+export const Route = createRootRoute({
+  component: RootLayout,
+});
+
+function RootLayout() {
+  const { user, backend } = useInternetIdentity();
+
+  useEffect(() => {
+    if (user && backend) {
+      backend.getCallerUserProfile().then((profile) => {
+        if (!profile.Ok) {
+          window.location.href = "/profile";
+        }
+      });
+    }
+  }, [user, backend]);
+
+  return (
+    <>
+      <main>
+        <Outlet />
+      </main>
+      <Toaster />
+    </>
+
+  );
+}

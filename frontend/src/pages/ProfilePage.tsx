@@ -1,1 +1,145 @@
-import { zodResolver } from \"@hookform/resolvers/zod\";\nimport { useForm } from \"react-hook-form\";\nimport { z } from \"zod\";\nimport { Button } from \"@/components/ui/button\";\nimport { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from \"@/components/ui/form\";\nimport { Input } from \"@/components/ui/input\";\nimport { useBackend } from \"@/hooks/useActor\";\nimport { useInternetIdentity } from \"@/hooks/useInternetIdentity\";\nimport { useEffect, useState } from \"react\";\nimport { useToast } from \"@/hooks/use-toast\";\n\nconst formSchema = z.object({\n  username: z.string().min(2, \"Username must be at least 2 characters.\"),\n  boatName: z.string().min(2, \"Boat name must be at least 2 characters.\"),\n  boatCategory: z.string().min(2, \"Boat category must be at least 2 characters.\"),\n  boatRating: z.coerce.number().min(1, \"Boat rating must be at least 1.\"),\n});\n\nexport default function ProfilePage() {\n  const { user } = useInternetIdentity();\n  const { backend } = useBackend();\n  const { toast } = useToast();\n  const [isSaving, setIsSaving] = useState(false);\n\n  const form = useForm<z.infer<typeof formSchema>>({\n    resolver: zodResolver(formSchema),\n    defaultValues: {\n      username: \"\",\n      boatName: \"\",\n      boatCategory: \"\",\n      boatRating: 1,\n    },\n  });\n\n  useEffect(() => {\n    if (backend && user) {\n      backend.getCallerUserProfile().then((profile) => {\n        if (profile.Ok) {\n          form.reset({\n            username: profile.Ok.username,\n            boatName: profile.Ok.boatName,\n            boatCategory: profile.Ok.boatCategory,\n            boatRating: Number(profile.Ok.boatRating),\n          });\n        }\n      });\n    }\n  }, [backend, user, form]);\n\n  async function onSubmit(values: z.infer<typeof formSchema>) {\n    if (!backend) return;\n\n    setIsSaving(true);\n    try {\n      await backend.saveCallerUserProfile({\n        username: values.username,\n        email: user?.email ?? \"\",\n        boatName: values.boatName,\n        boatCategory: values.boatCategory,\n        boatRating: BigInt(values.boatRating),\n      });\n\n      toast({\n        title: \"Profile Saved!\",\n        description: \"Your profile has been successfully updated.\",\n      });\n\n      window.location.href = \"/\";\n    } catch (error) {\n      console.error(error);\n      toast({\n        variant: \"destructive\",\n        title: \"An error occurred\",\n        description: String(error),\n      });\n    } finally {\n      setIsSaving(false);\n    }\n  }\n\n  return (\n    <div className=\"container mx-auto p-4\">\n      <h1 className=\"text-2xl font-bold mb-4\">Complete Your Profile</h1>\n      <Form {...form}>\n        <form onSubmit={form.handleSubmit(onSubmit)} className=\"space-y-8\">\n          <FormField\n            control={form.control}\n            name=\"username\"\n            render={({ field }) => (\n              <FormItem>\n                <FormLabel>Username</FormLabel>\n                <FormControl>\n                  <Input placeholder=\"Your username\" {...field} />\n                </FormControl>\n                <FormMessage />\n              </FormItem>\n            )}\n          />\n          <FormField\n            control={form.control}\n            name=\"boatName\"\n            render={({ field }) => (\n              <FormItem>\n                <FormLabel>Boat Name</FormLabel>\n                <FormControl>\n                  <Input placeholder=\"Your boat's name\" {...field} />\n                </FormControl>\n                <FormMessage />\n              </FormItem>\n            )}\n          />\n          <FormField\n            control={form.control}\n            name=\"boatCategory\"\n            render={({ field }) => (\n              <FormItem>\n                <FormLabel>Boat Category</FormLabel>\n                <FormControl>\n                  <Input placeholder=\"Your boat's category\" {...field} />\n                </FormControl>\n                <FormMessage />\n              </FormItem>\n            )}\n          />\n          <FormField\n            control={form.control}\n            name=\"boatRating\"\n            render={({ field }) => (\n              <FormItem>\n                <FormLabel>Boat Rating</FormLabel>\n                <FormControl>\n                  <Input type=\"number\" placeholder=\"Your boat's rating\" {...field} />\n                </FormControl>\n                <FormMessage />\n              </FormItem>\n            )}\n          />\n          <Button type=\"submit\" disabled={isSaving}>\n            {isSaving ? \"Saving...\" : \"Save\"}\n          </Button>\n        </form>\n      </Form>\n    </div>\n  );\n}\n
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useBackend } from "@/hooks/useActor";
+import { useInternetIdentity } from "@/hooks/useInternetIdentity";
+import { useEffect, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+
+const formSchema = z.object({
+  username: z.string().min(2, "L'username deve contenere almeno 2 caratteri."),
+  boatName: z.string().min(2, "Il nome della barca deve contenere almeno 2 caratteri."),
+  boatCategory: z.string().min(2, "La categoria della barca deve contenere almeno 2 caratteri."),
+  boatRating: z.coerce.number().min(1, "La valutazione della barca deve essere di almeno 1."),
+});
+
+export default function ProfilePage() {
+  const { user } = useInternetIdentity();
+  const { backend } = useBackend();
+  const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: "",
+      boatName: "",
+      boatCategory: "",
+      boatRating: 1,
+    },
+  });
+
+  useEffect(() => {
+    if (backend && user) {
+      backend.getCallerUserProfile().then((profile) => {
+        if (profile.Ok) {
+          form.reset({
+            username: profile.Ok.username,
+            boatName: profile.Ok.boatName,
+            boatCategory: profile.Ok.boatCategory,
+            boatRating: Number(profile.Ok.boatRating),
+          });
+        }
+      });
+    }
+  }, [backend, user, form]);
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!backend) return;
+
+    setIsSaving(true);
+    try {
+      await backend.saveCallerUserProfile({
+        username: values.username,
+        email: user?.email ?? "",
+        boatName: values.boatName,
+        boatCategory: values.boatCategory,
+        boatRating: BigInt(values.boatRating),
+      });
+
+      toast({
+        title: "Profilo Salvato!",
+        description: "Il tuo profilo è stato aggiornato con successo.",
+      });
+
+      window.location.href = "/";
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Si è verificato un errore",
+        description: String(error),
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Completa il tuo profilo</h1>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input placeholder="Il tuo username" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="boatName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nome della barca</FormLabel>
+                <FormControl>
+                  <Input placeholder="Il nome della tua barca" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="boatCategory"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Categoria della barca</FormLabel>
+                <FormControl>
+                  <Input placeholder="La categoria della tua barca" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="boatRating"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Valutazione della barca</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="La valutazione della tua barca" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" disabled={isSaving}>
+            {isSaving ? "Salvataggio..." : "Salva"}
+          </Button>
+        </form>
+      </Form>
+    </div>
+  );
+}
