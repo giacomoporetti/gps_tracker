@@ -1,0 +1,218 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --radius: 0.75rem;
+        --background: 0.98 0.02 210;
+        --foreground: 0.15 0.05 220;
+        --card: 1 0 0;
+        --card-foreground: 0.15 0.05 220;
+        --popover: 1 0 0;
+        --popover-foreground: 0.15 0.05 220;
+        --primary: 0.55 0.18 240;
+        --primary-foreground: 0.98 0.02 210;
+        --secondary: 0.95 0.02 240;
+        --secondary-foreground: 0.25 0.08 220;
+        --muted: 0.95 0.02 240;
+        --muted-foreground: 0.45 0.08 220;
+        --accent: 0.92 0.03 240;
+        --accent-foreground: 0.25 0.08 220;
+        --destructive: 0.62 0.22 15;
+        --destructive-foreground: 0.98 0.02 210;
+        --border: 0.88 0.03 240;
+        --input: 0.88 0.03 240;
+        --ring: 0.55 0.18 240;
+        --chart-1: 0.55 0.18 240;
+        --chart-2: 0.65 0.15 160;
+        --chart-3: 0.45 0.12 300;
+        --chart-4: 0.75 0.20 45;
+        --chart-5: 0.70 0.18 320;
+        --sidebar: 0.98 0.02 210;
+        --sidebar-foreground: 0.15 0.05 220;
+        --sidebar-primary: 0.55 0.18 240;
+        --sidebar-primary-foreground: 0.98 0.02 210;
+        --sidebar-accent: 0.92 0.03 240;
+        --sidebar-accent-foreground: 0.25 0.08 220;
+        --sidebar-border: 0.88 0.03 240;
+        --sidebar-ring: 0.55 0.18 240;
+    }
+
+    .dark {
+        --background: 0.08 0.03 240;
+        --foreground: 0.95 0.02 240;
+        --card: 0.12 0.04 240;
+        --card-foreground: 0.95 0.02 240;
+        --popover: 0.15 0.05 240;
+        --popover-foreground: 0.95 0.02 240;
+        --primary: 0.65 0.15 240;
+        --primary-foreground: 0.08 0.03 240;
+        --secondary: 0.18 0.06 240;
+        --secondary-foreground: 0.95 0.02 240;
+        --muted: 0.18 0.06 240;
+        --muted-foreground: 0.65 0.08 240;
+        --accent: 0.22 0.07 240;
+        --accent-foreground: 0.95 0.02 240;
+        --destructive: 0.68 0.20 15;
+        --destructive-foreground: 0.08 0.03 240;
+        --border: 0.22 0.07 240;
+        --input: 0.22 0.07 240;
+        --ring: 0.65 0.15 240;
+        --chart-1: 0.65 0.15 240;
+        --chart-2: 0.70 0.12 160;
+        --chart-3: 0.55 0.10 300;
+        --chart-4: 0.80 0.18 45;
+        --chart-5: 0.75 0.15 320;
+        --sidebar: 0.12 0.04 240;
+        --sidebar-foreground: 0.95 0.02 240;
+        --sidebar-primary: 0.65 0.15 240;
+        --sidebar-primary-foreground: 0.08 0.03 240;
+        --sidebar-accent: 0.18 0.06 240;
+        --sidebar-accent-foreground: 0.95 0.02 240;
+        --sidebar-border: 0.22 0.07 240;
+        --sidebar-ring: 0.65 0.15 240;
+    }
+
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+        font-feature-settings: "rlig" 1, "calt" 1;
+    }
+}
+
+/* Custom styles for mobile optimization */
+@layer components {
+    .container {
+        @apply w-full mx-auto px-4;
+    }
+    
+    /* Ensure touch targets are large enough */
+    .touch-target {
+        @apply min-h-[44px] min-w-[44px];
+    }
+    
+    /* Smooth scrolling for mobile */
+    html {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Prevent zoom on input focus on iOS */
+    input, select, textarea {
+        font-size: 16px;
+    }
+    
+    @media (max-width: 640px) {
+        input, select, textarea {
+            font-size: 16px;
+        }
+    }
+}
+
+/* Leaflet map custom marker styles */
+@layer utilities {
+    .custom-marker {
+        background: transparent !important;
+        border: none !important;
+    }
+    
+    .marker-inner {
+        border-radius: 50%;
+        border: 2px solid white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .marker-inner.start {
+        background: oklch(0.65 0.15 160);
+        width: 16px;
+        height: 16px;
+    }
+    
+    .marker-inner.end {
+        background: oklch(0.62 0.22 15);
+        width: 16px;
+        height: 16px;
+    }
+    
+    .marker-inner.current {
+        background: oklch(0.75 0.20 45);
+        width: 20px;
+        height: 20px;
+        animation: pulse 2s infinite;
+    }
+    
+    .marker-inner.regular {
+        background: oklch(var(--primary));
+        width: 12px;
+        height: 12px;
+    }
+
+    .marker-inner.route-point-green {
+        background: #22c55e !important;
+        width: 28px !important;
+        height: 28px !important;
+        border: 3px solid white !important;
+        border-radius: 50% !important;
+        position: relative;
+    }
+
+    .marker-inner.route-point-red {
+        background: #ef4444 !important;
+        width: 28px !important;
+        height: 28px !important;
+        border: 3px solid white !important;
+        border-radius: 50% !important;
+        position: relative;
+    }
+
+    .point-number {
+        color: white !important;
+        font-weight: bold !important;
+        font-size: 14px !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5) !important;
+        line-height: 1 !important;
+        display: block !important;
+    }
+    
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 oklch(0.75 0.20 45 / 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px oklch(0.75 0.20 45 / 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 oklch(0.75 0.20 45 / 0);
+        }
+    }
+    
+    .leaflet-control-layers {
+        font-size: 14px;
+    }
+    
+    .leaflet-container {
+        font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    /* Ensure Leaflet popup and tooltip styles work properly */
+    .leaflet-popup-content-wrapper,
+    .leaflet-popup-tip {
+        background: white;
+        color: #333;
+        box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+    }
+
+    .leaflet-container a.leaflet-popup-close-button {
+        color: #c3c3c3;
+    }
+
+    .leaflet-container a.leaflet-popup-close-button:hover {
+        color: #999;
+    }
+}

@@ -1,0 +1,74 @@
+type UserRole = 
+ variant {
+   admin;
+   guest;
+   user;
+ };
+type UserProfile = record {name: text;};
+type Session = 
+ record {
+   boatName: text;
+   distance: float64;
+   duration: int;
+   finalTime: opt int;
+   id: nat;
+   intermediateTime: opt int;
+   pointsCount: nat;
+   positions: vec Position;
+   rating: nat;
+   routeId: nat;
+   skipperName: text;
+   startTime: int;
+   userId: text;
+ };
+type Route = 
+ record {
+   id: nat;
+   intermediatePoint1: Point;
+   intermediatePoint2: Point;
+   name: text;
+   startPoint1: Point;
+   startPoint2: Point;
+   userId: text;
+ };
+type Position = 
+ record {
+   lat: float64;
+   lon: float64;
+   timestamp: int;
+ };
+type Point = 
+ record {
+   lat: float64;
+   lon: float64;
+ };
+service : {
+  assignCallerUserRole: (user: principal, role: UserRole) -> ();
+  createRoute: (name: text, startPoint1: Point, startPoint2: Point,
+   intermediatePoint1: Point, intermediatePoint2: Point, userId: text) ->
+   (nat);
+  deleteRoute: (routeId: nat, userId: text) -> (bool);
+  findRoutesWithinDistance: (lat: float64, lon: float64, maxDistance:
+   float64, userId: text) -> (vec Route) query;
+  getCallerUserProfile: () -> (opt UserProfile) query;
+  getCallerUserRole: () -> (UserRole) query;
+  getCurrentTime: () -> (int) query;
+  getLastSessionForUser: (userId: text) -> (opt Session) query;
+  getRoute: (routeId: nat) -> (opt Route) query;
+  getRoutes: (userId: text) -> (vec Route) query;
+  getSession: (id: nat) -> (opt Session) query;
+  getSessionCount: () -> (nat) query;
+  getSessions: () -> (vec Session) query;
+  getUserProfile: (user: principal) -> (opt UserProfile) query;
+  getUserSessions: (userId: text) -> (vec Session) query;
+  initializeAccessControl: () -> ();
+  isCallerAdmin: () -> (bool) query;
+  saveCallerUserProfile: (profile: UserProfile) -> ();
+  saveSession: (startTime: int, duration: int, positions: vec Position,
+   distance: float64, skipperName: text, boatName: text, rating: nat, userId:
+   text, routeId: nat, intermediateTime: opt int, finalTime: opt int) ->
+   (nat);
+  updateRoute: (routeId: nat, name: text, startPoint1: Point, startPoint2:
+   Point, intermediatePoint1: Point, intermediatePoint2: Point, userId:
+   text) -> (bool);
+}

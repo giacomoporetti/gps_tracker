@@ -1,0 +1,17 @@
+{
+  "frontend/src/App.tsx": "Main application component with Internet Identity provider integration, React Query, theme provider, and toast notifications for the GPS tracking app.",
+  "frontend/src/routeTree.gen.ts": "Updated router configuration that removes the separate routes route since route management functionality has been integrated into the main tracking page.",
+  "frontend/src/components/RootLayout.tsx": "Root layout component that provides the main structure with navigation and outlet for page content.",
+  "frontend/src/components/Navigation.tsx": "Simplified bottom navigation component with two tabs (Traccia and Cronologia) after removing the separate routes tab since route management is now integrated into the main tracking page.",
+  "frontend/src/pages/TrackingPage.tsx": "Enhanced GPS tracking page with comprehensive profile management (username, email, boat name, boat category, boat rating), profile editing capability, session configuration pre-filled from user profile, route name display in session summary, and full Italian language support with robust error handling and validation.",
+  "frontend/src/pages/SessionsPage.tsx": "Sessions history page that displays route names for each session by fetching route data, showing comprehensive session information including skipper, boat, rating, and route code.",
+  "frontend/src/pages/SessionDetailPage.tsx": "Detailed session view with route information display, timing data (intermediate and final times), and enhanced layout showing all session metadata including route name and timing checkpoints.",
+  "frontend/src/components/MapContainer.tsx": "Interactive map component with enhanced route visualization that immediately displays numbered and colored markers for route reference points (green for start line points 1-2, red for intermediate line points 3-4) on satellite imagery, with improved initialization logic to ensure route points are always visible when dialogs open.",
+  "frontend/src/components/Timer.tsx": "Real-time timer component that displays elapsed time in HH:MM:SS format during active tracking sessions.",
+  "frontend/src/hooks/useQueries.ts": "Updated React Query hooks with proper UserProfile type support matching the backend interface (username, email, boatName, boatCategory, boatRating) and enhanced error handling for all operations.",
+  "frontend/src/index.css": "Global styles with GPS-themed OKLCH color system in blue tones, mobile-optimized touch targets, smooth scrolling behavior, and enhanced Leaflet map marker styles for route visualization with numbered colored markers.",
+  "frontend/tailwind.config.js": "Tailwind configuration with mobile-first responsive breakpoints, enhanced container settings, and custom font stacks for better mobile typography.",
+  "frontend/src/lib/utils.ts": "Utility functions including GPS distance calculations, line crossing detection algorithms for automatic timing detection during route tracking.",
+  "frontend/src/pages/RoutesPage.tsx": "Route management page allowing users to create, edit, and delete routes with 4 reference points (start line and intermediate line) for GPS tracking sessions.",
+  "frontend/src/hooks/useActor.ts": "Enhanced actor hook with explicit TypeScript return type interface that includes isReady property, improved session management with better error handling and retry logic, and ensures mutations are only called when the actor is fully initialized with valid authentication."
+}
