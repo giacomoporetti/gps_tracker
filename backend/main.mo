@@ -72,6 +72,17 @@ actor GpsTracker {
 
   let accessControlState = AccessControl.initState();
 
+  func isProfileComplete(profile : UserProfile) : Bool {
+    profile.username != "" and profile.email != "" and profile.boatName != "" and profile.boatCategory != ""
+  };
+
+  public query ({ caller }) func isCallerProfileComplete() : async Bool {
+    switch (principalMap.get(userProfiles, caller)) {
+      case (null) { false };
+      case (?profile) { isProfileComplete(profile) };
+    };
+  };
+
   public shared ({ caller }) func initializeAccessControl() : async () {
     AccessControl.initialize(accessControlState, caller);
   };
@@ -103,6 +114,10 @@ actor GpsTracker {
   public shared ({ caller }) func saveSession(startTime : Int, duration : Int, positions : [Position], distance : Float, skipperName : Text, boatName : Text, rating : Nat, userId : Text, routeId : Nat, intermediateTime : ?Int, finalTime : ?Int) : async Nat {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Debug.trap("Non autorizzato: solo utenti autenticati possono salvare sessioni");
+    };
+    let profile = principalMap.get(userProfiles, caller);
+    if (profile == null or not isProfileComplete(?profile)) {
+      Debug.trap("Profilo incompleto: per favore, completa il tuo profilo prima di salvare una sessione.");
     };
 
     let sessionId = nextSessionId;
@@ -141,6 +156,10 @@ actor GpsTracker {
   public shared ({ caller }) func createRoute(name : Text, startPoint1 : Point, startPoint2 : Point, intermediatePoint1 : Point, intermediatePoint2 : Point, userId : Text) : async Nat {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Debug.trap("Non autorizzato: solo utenti autenticati possono creare percorsi");
+    };
+    let profile = principalMap.get(userProfiles, caller);
+    if (profile == null or not isProfileComplete(?profile)) {
+      Debug.trap("Profilo incompleto: per favore, completa il tuo profilo prima di creare un percorso.");
     };
 
     // Validate points
@@ -218,9 +237,9 @@ actor GpsTracker {
     };
   };
 
-  public query ({ caller }) func getRoutes(userId : Text) : async [Route] {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Debug.trap("Non autorizzato: solo utenti autenticati possono visualizzare percorsi");
+ public query ({ caller }) func getRoutes(userId : Text) : async [Route] {
+    if (Principal.toText(caller) != userId) {
+        Debug.trap("Non autorizzato: puoi visualizzare solo i tuoi percorsi");
     };
 
     let userRoutes = Iter.toArray(routeMap.vals(routes));
@@ -264,8 +283,8 @@ actor GpsTracker {
   };
 
   public query ({ caller }) func getLastSessionForUser(userId : Text) : async ?Session {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Debug.trap("Non autorizzato: solo utenti autenticati possono visualizzare l'ultima sessione");
+    if (Principal.toText(caller) != userId) {
+        Debug.trap("Non autorizzato: puoi visualizzare solo la tua ultima sessione");
     };
 
     switch (userMap.get(userSessions, userId)) {
@@ -282,8 +301,8 @@ actor GpsTracker {
   };
 
   public query ({ caller }) func getUserSessions(userId : Text) : async [Session] {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Debug.trap("Non autorizzato: solo utenti autenticati possono visualizzare le proprie sessioni");
+    if (Principal.toText(caller) != userId) {
+        Debug.trap("Non autorizzato: puoi visualizzare solo le tue sessioni");
     };
 
     switch (userMap.get(userSessions, userId)) {
@@ -301,8 +320,8 @@ actor GpsTracker {
   };
 
   public query ({ caller }) func findRoutesWithinDistance(lat : Float, lon : Float, maxDistance : Float, userId : Text) : async [Route] {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Debug.trap("Non autorizzato: solo utenti autenticati possono cercare percorsi");
+    if (Principal.toText(caller) != userId) {
+        Debug.trap("Non autorizzato: puoi cercare solo i tuoi percorsi");
     };
 
     let userRoutes = Iter.toArray(routeMap.vals(routes));
@@ -330,4 +349,3 @@ actor GpsTracker {
     degrees * 3.141592653589793 / 180.0;
   };
 };
-

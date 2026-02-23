@@ -4,6 +4,7 @@ import RootLayout from './components/RootLayout';
 import TrackingPage from './pages/TrackingPage';
 import SessionsPage from './pages/SessionsPage';
 import SessionDetailPage from './pages/SessionDetailPage';
+import ProfilePage from './pages/ProfilePage';
 
 interface RouterContext {
   queryClient: QueryClient;
@@ -31,8 +32,15 @@ const sessionDetailRoute = createRoute({
   component: SessionDetailPage,
 });
 
+const profileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/profile',
+  component: ProfilePage,
+});
+
 export const routeTree = rootRoute.addChildren([
   indexRoute,
   sessionsRoute,
   sessionDetailRoute,
+  profileRoute,
 ]);
